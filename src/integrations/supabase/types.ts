@@ -14,7 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      action_plans: {
+        Row: {
+          created_at: string
+          goal: string
+          id: string
+          tasks: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal: string
+          id?: string
+          tasks?: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal?: string
+          id?: string
+          tasks?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      opportunities: {
+        Row: {
+          apply_link: string
+          category: string
+          created_at: string
+          deadline: string
+          description: string
+          id: string
+          organization: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          apply_link: string
+          category: string
+          created_at?: string
+          deadline: string
+          description: string
+          id?: string
+          organization: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          apply_link?: string
+          category?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          id?: string
+          organization?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          branch: string | null
+          career_goals: string | null
+          college: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          interests: string[] | null
+          skills: string[] | null
+          updated_at: string
+          year: string | null
+        }
+        Insert: {
+          branch?: string | null
+          career_goals?: string | null
+          college?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          interests?: string[] | null
+          skills?: string[] | null
+          updated_at?: string
+          year?: string | null
+        }
+        Update: {
+          branch?: string | null
+          career_goals?: string | null
+          college?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          interests?: string[] | null
+          skills?: string[] | null
+          updated_at?: string
+          year?: string | null
+        }
+        Relationships: []
+      }
+      saved_opportunities: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_opportunities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
