@@ -50,9 +50,16 @@ export type Database = {
           category: string
           created_at: string
           deadline: string
+          degree_types: string[]
           description: string
+          details_url: string | null
+          eligible_branches: string[]
+          eligible_years: string[]
           id: string
+          location_restrictions: string[]
+          min_cgpa: number | null
           organization: string
+          registration_url: string | null
           tags: string[] | null
           title: string
         }
@@ -61,9 +68,16 @@ export type Database = {
           category: string
           created_at?: string
           deadline: string
+          degree_types?: string[]
           description: string
+          details_url?: string | null
+          eligible_branches?: string[]
+          eligible_years?: string[]
           id?: string
+          location_restrictions?: string[]
+          min_cgpa?: number | null
           organization: string
+          registration_url?: string | null
           tags?: string[] | null
           title: string
         }
@@ -72,24 +86,69 @@ export type Database = {
           category?: string
           created_at?: string
           deadline?: string
+          degree_types?: string[]
           description?: string
+          details_url?: string | null
+          eligible_branches?: string[]
+          eligible_years?: string[]
           id?: string
+          location_restrictions?: string[]
+          min_cgpa?: number | null
           organization?: string
+          registration_url?: string | null
           tags?: string[] | null
           title?: string
         }
         Relationships: []
       }
+      opportunity_visits: {
+        Row: {
+          created_at: string
+          id: string
+          last_visited_at: string
+          opportunity_id: string
+          user_id: string
+          visit_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_visited_at?: string
+          opportunity_id: string
+          user_id: string
+          visit_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_visited_at?: string
+          opportunity_id?: string
+          user_id?: string
+          visit_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_visits_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           branch: string | null
           career_goals: string | null
+          cgpa: number | null
           college: string | null
           created_at: string
+          degree_type: string | null
           email: string | null
           full_name: string | null
           id: string
           interests: string[] | null
+          location: string | null
           skills: string[] | null
           updated_at: string
           year: string | null
@@ -97,12 +156,15 @@ export type Database = {
         Insert: {
           branch?: string | null
           career_goals?: string | null
+          cgpa?: number | null
           college?: string | null
           created_at?: string
+          degree_type?: string | null
           email?: string | null
           full_name?: string | null
           id: string
           interests?: string[] | null
+          location?: string | null
           skills?: string[] | null
           updated_at?: string
           year?: string | null
@@ -110,12 +172,15 @@ export type Database = {
         Update: {
           branch?: string | null
           career_goals?: string | null
+          cgpa?: number | null
           college?: string | null
           created_at?: string
+          degree_type?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
           interests?: string[] | null
+          location?: string | null
           skills?: string[] | null
           updated_at?: string
           year?: string | null
