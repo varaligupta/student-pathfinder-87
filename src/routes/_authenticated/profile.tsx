@@ -19,7 +19,8 @@ const TAG_MAP: Record<string, string> = {
 function ProfilePage() {
   const { user } = useAuth();
   const [form, setForm] = useState({
-    full_name: "", college: "", branch: "", year: "1", career_goals: "",
+    full_name: "", college: "", branch: "", year: "First Year", career_goals: "",
+    cgpa: "", degree_type: "B.Tech", location: "India",
   });
   const [skills, setSkills] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
@@ -31,12 +32,16 @@ function ProfilePage() {
     (async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       if (data) {
+        const yearMap: Record<string, string> = { "1": "First Year", "2": "Second Year", "3": "Third Year", "4": "Fourth Year" };
         setForm({
           full_name: data.full_name ?? "",
           college: data.college ?? "",
           branch: data.branch ?? "",
-          year: data.year ?? "1",
+          year: yearMap[data.year ?? ""] ?? data.year ?? "First Year",
           career_goals: data.career_goals ?? "",
+          cgpa: data.cgpa != null ? String(data.cgpa) : "",
+          degree_type: data.degree_type ?? "B.Tech",
+          location: data.location ?? "India",
         });
         setSkills(data.skills ?? []);
         setInterests(data.interests ?? []);
@@ -47,10 +52,18 @@ function ProfilePage() {
 
   async function save() {
     setSaving(true);
-    // Map friendly interest labels to tag keys used by recommendations
     const interestTags = interests.map((i) => TAG_MAP[i] ?? i.toLowerCase());
+    const cgpaNum = form.cgpa.trim() ? Number(form.cgpa) : null;
+    if (cgpaNum != null && (isNaN(cgpaNum) || cgpaNum < 0 || cgpaNum > 10)) {
+      setSaving(false);
+      return toast.error("CGPA must be a number between 0 and 10");
+    }
     const { error } = await supabase.from("profiles").upsert({
-      id: user!.id, email: user!.email, ...form, skills, interests: interestTags,
+      id: user!.id, email: user!.email,
+      full_name: form.full_name, college: form.college, branch: form.branch,
+      year: form.year, career_goals: form.career_goals,
+      cgpa: cgpaNum, degree_type: form.degree_type, location: form.location,
+      skills, interests: interestTags,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
@@ -89,14 +102,30 @@ function ProfilePage() {
         <div className="grid md:grid-cols-2 gap-4">
           <Input label="Full Name" value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
           <Input label="College" value={form.college} onChange={(v) => setForm({ ...form, college: v })} />
-          <Input label="Branch" value={form.branch} onChange={(v) => setForm({ ...form, branch: v })} />
+          <div>
+            <label className="text-sm font-medium text-foreground">Branch</label>
+            <select value={form.branch} onChange={(e) => setForm({ ...form, branch: e.target.value })}
+              className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+              <option value="">Select branch…</option>
+              {["Computer Science","Information Technology","Electronics","Mechanical","Civil","Electrical","Chemical","Mathematics","Any"].map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
           <div>
             <label className="text-sm font-medium text-foreground">Year</label>
             <select value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })}
               className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
-              <option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option>
+              {["First Year","Second Year","Third Year","Fourth Year","Fifth Year"].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">Degree Type</label>
+            <select value={form.degree_type} onChange={(e) => setForm({ ...form, degree_type: e.target.value })}
+              className="mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+              {["B.Tech","B.E","B.Sc","B.A","B.Com","BBA","M.Tech","M.Sc","MBA","PhD"].map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+          </div>
+          <Input label="CGPA (out of 10)" value={form.cgpa} onChange={(v) => setForm({ ...form, cgpa: v })} />
+          <Input label="Location (Country)" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
         </div>
 
         <div>
