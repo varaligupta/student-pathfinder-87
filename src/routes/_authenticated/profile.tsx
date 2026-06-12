@@ -19,7 +19,8 @@ const TAG_MAP: Record<string, string> = {
 function ProfilePage() {
   const { user } = useAuth();
   const [form, setForm] = useState({
-    full_name: "", college: "", branch: "", year: "1", career_goals: "",
+    full_name: "", college: "", branch: "", year: "First Year", career_goals: "",
+    cgpa: "", degree_type: "B.Tech", location: "India",
   });
   const [skills, setSkills] = useState<string[]>([]);
   const [interests, setInterests] = useState<string[]>([]);
@@ -31,12 +32,16 @@ function ProfilePage() {
     (async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle();
       if (data) {
+        const yearMap: Record<string, string> = { "1": "First Year", "2": "Second Year", "3": "Third Year", "4": "Fourth Year" };
         setForm({
           full_name: data.full_name ?? "",
           college: data.college ?? "",
           branch: data.branch ?? "",
-          year: data.year ?? "1",
+          year: yearMap[data.year ?? ""] ?? data.year ?? "First Year",
           career_goals: data.career_goals ?? "",
+          cgpa: data.cgpa != null ? String(data.cgpa) : "",
+          degree_type: data.degree_type ?? "B.Tech",
+          location: data.location ?? "India",
         });
         setSkills(data.skills ?? []);
         setInterests(data.interests ?? []);
@@ -47,10 +52,18 @@ function ProfilePage() {
 
   async function save() {
     setSaving(true);
-    // Map friendly interest labels to tag keys used by recommendations
     const interestTags = interests.map((i) => TAG_MAP[i] ?? i.toLowerCase());
+    const cgpaNum = form.cgpa.trim() ? Number(form.cgpa) : null;
+    if (cgpaNum != null && (isNaN(cgpaNum) || cgpaNum < 0 || cgpaNum > 10)) {
+      setSaving(false);
+      return toast.error("CGPA must be a number between 0 and 10");
+    }
     const { error } = await supabase.from("profiles").upsert({
-      id: user!.id, email: user!.email, ...form, skills, interests: interestTags,
+      id: user!.id, email: user!.email,
+      full_name: form.full_name, college: form.college, branch: form.branch,
+      year: form.year, career_goals: form.career_goals,
+      cgpa: cgpaNum, degree_type: form.degree_type, location: form.location,
+      skills, interests: interestTags,
     });
     setSaving(false);
     if (error) return toast.error(error.message);
