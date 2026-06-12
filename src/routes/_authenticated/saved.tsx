@@ -79,7 +79,7 @@ function SavedPage() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filtered.map((o) => (
-                <OpportunityCard key={o.id} opp={o} saved={true} onToggleSave={remove} />
+                <OpportunityCard key={o.id} opp={o} saved={true} onToggleSave={remove} profile={profile} />
               ))}
             </div>
           )}
