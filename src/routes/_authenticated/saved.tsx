@@ -15,16 +15,18 @@ const CATEGORIES = ["all", "hackathon", "internship", "scholarship", "workshop"]
 function SavedPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<Opp[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("all");
 
   async function load() {
-    const { data } = await supabase
-      .from("saved_opportunities")
-      .select("opportunity:opportunities(*)")
-      .eq("user_id", user!.id);
+    const [{ data }, { data: p }] = await Promise.all([
+      supabase.from("saved_opportunities").select("opportunity:opportunities(*)").eq("user_id", user!.id),
+      supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle(),
+    ]);
     setItems((data ?? []).map((r: any) => r.opportunity).filter(Boolean));
+    setProfile(p ?? null);
     setLoading(false);
   }
 
